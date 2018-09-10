@@ -1,8 +1,10 @@
-# ALASTRIA LATIN AMERICA AND THE CARIBBEAN#
+# ALASTRIA LATIN AMERICA AND THE CARIBBEAN #
 
 ## References
 
-* In the next installation we will use Ubuntu 18.04 as operating system and all the commands related to this operating system. In addition, links of the prerequisites will be placed in case it is required to install in another operating system.
+* In the next installation we will use **Ubuntu 18.04** as operating system and all the commands related to this operating system. In addition, links of the prerequisites will be placed in case it is required to install in another operating system.
+
+* An important consideration is that we will use Ansible, for which the installation is done from a local machine on a remote server. That means that the local machine and the remote server will communicate by ssh.
 
 * The Github of Alastria can be followed as a reference [https://github.com/alastria/alastria-node](https://github.com/alastria/alastria-node)
 
@@ -30,17 +32,9 @@ It is necessary to enable the following network ports in the machine in which we
 
 ## Prerequisites
 
-### Clone Repository ####
-
-To configure and install Quorum and Constellation, you must clone this git repository in local machine.
-
-```
-$ git clone https://github.com/alastria/alastria-node.git
-$ cd alastria-node/
-```
 ### Install Ansible ###
 
-For the installation we will use Ansible. For this reason it is necessary to install Ansible on the local machine that will perform the installation of the node on the remote machine.
+For the installation we will use Ansible. For this reason it is necessary to install Ansible on the **local machine** that will perform the installation of the node on the remote machine.
 
 Following the instructions to [install ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) in local machine.
 
@@ -52,9 +46,20 @@ $ sudo apt-get update
 $ sudo apt-get install ansible
 ```
 
+### Clone Repository ####
+
+To configure and install Quorum and Constellation, you must clone this git repository in **local machine**.
+
+```
+$ git clone https://github.com/alastria/alastria-node.git
+$ cd alastria-node/
+```
+
 ### Install Python ###
 
-In order for ansible to work, it is necessary to install Python on the remote machine where the node will be installed, for this reason it is necessary to install python2.7 and python-pip.
+* In order for ansible to work, it is necessary to install Python on the **remote machine** where the node will be installed, for this reason it is necessary to install python2.7 and python-pip.
+
+* If you need to install python-pip in Redhat use [https://access.redhat.com/solutions/1519803](https://access.redhat.com/solutions/1519803)
 
 ```
 $ sudo apt-get update
@@ -66,11 +71,22 @@ $ sudo apt-get install python-pip
 
 ### Creation of a new Node ###
 
-Para crear un nuevo nodo de la red Alastria, debe ejecutarse el script init.sh pasando como parámetros la ip del nodo, el tipo de nodo (validator o general), y el nombre del nodo que estamos creando:
+* There are two types (Validator / Regular) that can be created in the Quorum network.
+
+* First, change the IP locate into inventory file
+
+* To deploy a validator node execute the next sentence in local machine.
 
 	```
-	$ ansible-playbook -i inventory -e first_node=true --private-key=~/.ssh/id_rsa -u vagrant site-everis-alastria.yml
+	$ ansible-playbook -i inventory -e first_node=false --private-key=~/.ssh/id_rsa -u vagrant site-everis-alastria-validator.yml
 	```
+
+* To deploy a regular node execute the next sentence in local machine.
+
+	```
+	$ ansible-playbook -i inventory --private-key=~/.ssh/id_rsa -u vagrant site-everis-alastria-regular.yml
+	```
+
 
 ## Node Configuration
 It is necessary to follow the next steps for the configuration of the nodes:
