@@ -146,7 +146,7 @@ This is because the rest of the validators in the network have not yet accepted 
 
 * Once the files have been modified, you must do a **pull request** against **this** repository
 
-* If it's validator node and it has an **unathorized address**, then you must indicate this **address** in the pull request.
+* If it's validator node and it has an **unauthorized address**, then you must indicate this **address** in the pull request.
 
 * To include this node as a validator node, the administrators of the **other validator nodes** must use the RPC API to vote if they **agree** with your node becoming a validator node.
 
