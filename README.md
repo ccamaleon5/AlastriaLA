@@ -4,7 +4,7 @@
 
 * In this installation we will use **Ubuntu 18.04** as the operating system and all the commands related to this operating system. In addition, links of the prerequisites will be placed in case it is required to install in another operating system.
 
-* An important consideration to note is that we will use Ansible, for which the installation is done from a local machine on a remote server. That means that the local machine and the remote server will communicate by ssh.
+* An important consideration to note is that we will use Ansible, for which the installation is done from a local machine on a remote server. That means that the local machine and the remote server will communicate via ssh.
 
 * The Github of Alastria can be followed as a reference [https://github.com/alastria/alastria-node](https://github.com/alastria/alastria-node)
 
