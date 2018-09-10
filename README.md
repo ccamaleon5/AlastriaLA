@@ -73,7 +73,12 @@ $ sudo apt-get install python-pip
 
 * There are two types (Validator / Regular) that can be created in the Quorum network.
 
-* First, change the IP locate into inventory file
+* First change the IP located within the **inventory file** by the public IP of the remote server that will be the node
+        ```
+	$ vi inventory
+        [test]
+        192.168.10.72
+	```
 
 * To deploy a validator node execute the next sentence in local machine.
 
@@ -86,22 +91,16 @@ $ sudo apt-get install python-pip
 	```
 	$ ansible-playbook -i inventory --private-key=~/.ssh/id_rsa -u vagrant site-everis-alastria-regular.yml
 	```
+* When starting the installation, it will request that some data be entered, such as the public IP, node type, account password and node name. The name of the node will be the one that will finally appear in the network monitoring tool.
 
+* At the end of the installation, if everything was correct, a GETH service will be created for the case of the validator node managed by Systemctl and with stop status.
+
+* In the case of a regular node if everything was correct, a CONSTELLATION service and a GETH service managed by Systemctl will be created and with stop status.
+
+* Now, it is necessary to perform the configuration of files before the execution of the node, please, follow the next steps.
 
 ## Node Configuration
 It is necessary to follow the next steps for the configuration of the nodes:
-
-
-
-### Reinicialización de un nodo existente ###
-
-Si ya disponemos de un nodo Alastria instalado en la máquina, y deseamos realizar una inicialización limpia del nodo manteniendo nuestro **enode**, nuestras claves constellation y nuestras cuentas actuales, podemos ejecutar:
-
-    ```
-	$ ./init.sh backup <<NODE_TYPE>> <<NODE_NAME>>
-	```
-
-Este será el procedimiento a seguir por los nodos miembros ante actualizaciones de la infraestructura.
 
 ### Configuración del fichero de nodos Quorum ###
 
@@ -153,12 +152,22 @@ Así, el nuevo nodo estará levantado y sincronizado con la red.
 > istanbul.propose("0x59d9F63451811C2c3C287BE40a2206d201DC3BfF", false);
 ```
 
+### Reinicialización de un nodo existente ###
+
+Si ya disponemos de un nodo Alastria instalado en la máquina, y deseamos realizar una inicialización limpia del nodo manteniendo nuestro **enode**, nuestras claves constellation y nuestras cuentas actuales, podemos ejecutar:
+
+    ```
+	$ ./init.sh backup <<NODE_TYPE>> <<NODE_NAME>>
+	```
+
+Este será el procedimiento a seguir por los nodos miembros ante actualizaciones de la infraestructura.
+
 ### Operación del nodo ###
 
- * Ante errores en el nodo, podemos optar por realizar un reinicio limpio del nodo, para ello debemos ejecutar los siguientes comados:
+ * Faced with errors in the node, we can choose to perform a clean restart of the node, for this we must execute the following commands:
 ```
-$ ./stop.sh
-$ ./start.sh
+$ systemctl restart constellation
+$ systemctl restart geth
 ```
 
  * Todos los nodos incluyen un monitor que permiten al equipo técnico de Alastria realizar labores de mantenimiento y gestión. La ejecución
@@ -182,12 +191,13 @@ y el enode de nuestro nodo y con `./scripts/backup.sh full` realizamos una copia
  * Existe un script `./scripts/clean.sh` que limpia el nodo actual y exige una resincronización del mismo al iniciarlo de nuevo. Esto solventa posibles errores de sincronización. Su efecto es el mismo que el de ejecutar directamente `./scripts/start.sh clean`
 
 
-**NOTA**
-Si deseamos generar el nodo utilizando un enode y las claves de un nodo ya existente debemos hacer un backup de las claves
-del antiguo nodo:
+**NOTE**
+If we want to generate the node using an enode and the keys of an existing node we must make a backup of the keys
+of the old node:
 ```
-./backup.sh keys
+$ ansible-playbook -i inventory --private-key=~/.ssh/id_rsa -u vagrant site-everis-alastria-backup.yml
 ```
-Esto generará la carpeta ~/alastria-keysBackup-<date> cuyo contenido deberemos moverlo a ~/alastria-node/data/keys.
-La claves de este directorio (que tiene que mantener la estructura de carpetas del backup generado) serán las utilizadas
-en la imagen del nodo que vamos a generar.
+This will generate the folder ~/alastria-keysBackup-<date> whose contents should be moved to ~ / alastria-node / data / keys.
+The keys of this directory (which has to keep the folder structure of the generated backup) will be the ones used
+in the image of the node that we are going to generate.
+of the old node:
