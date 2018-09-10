@@ -74,10 +74,13 @@ $ sudo apt-get install python-pip
 * There are two types of nodes (Validator / Regular) that can be created in the Quorum network.
 
 * First change the IP located within the **inventory file** by the public IP of the remote server where you are creating the node
-        ```
-	$ vi inventory
-        192.168.10.72
-	```
+
+
+```
+$ vi inventory
+[test]
+192.168.10.72
+```
 
 * To deploy a validator node execute the following command in your local machine:
 
