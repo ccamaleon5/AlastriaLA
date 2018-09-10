@@ -76,7 +76,6 @@ $ sudo apt-get install python-pip
 * First change the IP located within the **inventory file** by the public IP of the remote server where you are creating the node
         ```
 	$ vi inventory
-        [test]
         192.168.10.72
 	```
 
