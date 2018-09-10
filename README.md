@@ -104,65 +104,77 @@ It is necessary to follow the next steps for the configuration of the nodes:
 
 ### Configuración del fichero de nodos Quorum ###
 
-Si el nodo se creó desde cero, entonces el paso _Creación de un nuevo nodo_ modificó diversos ficheros, a saber:
+If the node was created from scratch, then step _Creating a new node_ modified several files, namely:
 
-* Si el nodo era validador, se modifican los siguientes ficheros:
+* If the node was a validator, the following files are modified:
 	* [`data/permissioned-nodes_general.json`](data/permissioned-nodes_general.json)
 	* [`data/permissioned-nodes_validator.json`](data/permissioned-nodes_validator.json)
 	* [`data/static-nodes.json`](data/static-nodes.json)
-* Si el nodo era general, se modican en cambio estos ficheros:
+* If the node was general, these files are modified instead:
 	* [`data/constellation-nodes.json`](data/constellation-nodes.json)
 	* [`data/permissioned-nodes_validator.json`](data/permissioned-nodes_validator.json)
 
-Nótese que el nombre de los ficheros hace referencia a los nodos por los que son consumidos, no a los nodos que los han modificado durante su creación.
+Note that the name of the files refers to the nodes by which they are consumed, not the nodes that have modified them during their creation.
 
-Además de estos cambios, que ocurren automáticamente al ejecutar el script [`init.sh`](scripts/init.sh), existen otros dos ficheros que deben modificarse manualmente, dependiendo del tipo de nodo creado, para indicar los datos de contacto de administración de los nodos: [DIRECTORY_VALIDATOR.md](DIRECTORY_VALIDATOR.md) o [DIRECTORY_REGULAR.md](DIRECTORY_REGULAR.md)
+In addition to these changes, which occur automatically when executing the node creation, there are two other files that must be modified manually, depending on the type of node created, to indicate the contact data of Administration of the nodes: [DIRECTORY_VALIDATOR.md] (DIRECTORY_VALIDATOR.md) or [DIRECTORY_REGULAR.md] (DIRECTORY_REGULAR.md)
 
-Una vez que disponemos de todos estos ficheros modificados solo es necesario arrancarlo usando el script [`start.sh`](scripts/start.sh)
+### Start Regular Node ###
 
-En cambio, si el nodo es validador, el resto de nodos de la red, deben ejecutar el script `restart.sh` con la opción onlyUpdate:
+Once we have all these modified files it is only necessary to start it using the command:
+
 ```
-$ ./restart.sh onlyUpdate
+$ systemctl start constellation
+$ systemctl start geth
 ```
 
-Entonces, el el fichero `~/alastria/logs/quorum-XXX.log` del nuevo nodo validador aparecerá el siguiente mensaje de error:
+### Start Validator Node ####
+
+On the other hand, if the node is a validator, the rest of the nodes in the network must execute:
+
+```
+$ systemctl start geth
+```
+
+Then, the file `~/alastria/logs/quorum-XXX.log` of the new validator node the following error message will appear:
 ```
 ERROR[12-19|12:25:05] Failed to decode message from payload    address=0x59d9F63451811C2c3C287BE40a2206d201DC3BfF err="unauthorized address"
 ```
-Esto es debido a que el resto de validadores de la red no han aceptado todavía al nodo como validador. Para solicitar dicha aceptación debemos anotar la dirección (address) del nodo.
+This is because the rest of the validators in the network have not yet accepted the node as a validator. To request such acceptance we must note the address of the node. the following error message
 
 ### Publicación del nodo ###
 
-Con los ficheros modificados, tanto automáticamente como manualmente, se debe crear un pull request contra este repositorio. Si el nodo era validador y tiene un address que aún no está autorizado, entonces debe indicarse dicha dirección en el pull request.
+* Con los ficheros modificados, tanto automáticamente como manualmente, se debe crear un **pull request** contra este repositorio. 
 
-Para la inclusión en la red de nuevos nodos validadores, los administradores del resto de miembros validadores deben usar el RPC API para añadir su dirección:
+* Si el nodo era validador y tiene un address que aún **no está autorizado**, entonces debe indicarse dicha **dirección** en el pull request.
+
+* For the inclusion in the network of new validator nodes, the administrators of the rest of the validating members must use the RPC API to add their address:
 
 
 ```
 > istanbul.propose("0x59d9F63451811C2c3C287BE40a2206d201DC3BfF", true);
 ```
 
-Así, el nuevo nodo estará levantado y sincronizado con la red.
+Thus, the new node will be raised and synchronized with the network.
 
-> **NUNCA DEBE REALIZARSE EL PROPOSE SIN HABER ACTUALIZADO ANTES LOS FICHEROS DE PERMISIONADO (restart.sh onlyUpdate).**
+> **NEVER MAKE THE PROPOSE WITHOUT UPDATING BEFORE THE FILES OF PERMISSIONED (Systemctl restart geth).**
 
-> **NUNCA SE DEBE ELIMINAR UN NODO DE LA RED SIN REALIZAR LA SOLICITUD DE ELIMINACIÓN PRIMERO A TRAVÉS DE UN PULL REQUEST PARA QUE EL RESTO DE MIEMBROS VALIDADORES LOS ELIMINEN DE SUS LISTAS PRIMERO Y REALICEN UNA RONDA DE VOTACIÓN:**
+> **A NETWORK NODE MUST NEVER BE ELIMINATED WITHOUT MAKING THE REMOVAL APPLICATION FIRST THROUGH A PULL REQUEST SO THAT THE REST OF VALIDATING MEMBERS WILL REMOVE THEM FROM THEIR LISTS FIRST AND MAKE A VOTING ROUND:**
 
 ```
 > istanbul.propose("0x59d9F63451811C2c3C287BE40a2206d201DC3BfF", false);
 ```
 
-### Reinicialización de un nodo existente ###
+### Reinitialization of an existing node ###
 
-Si ya disponemos de un nodo Alastria instalado en la máquina, y deseamos realizar una inicialización limpia del nodo manteniendo nuestro **enode**, nuestras claves constellation y nuestras cuentas actuales, podemos ejecutar:
+* If we already have an Alastria node installed on the machine, and we want to perform a clean initialization of the node keeping our **enode**, our constellation keys and our current accounts, we can execute:
 
     ```
-	$ ./init.sh backup <<NODE_TYPE>> <<NODE_NAME>>
-	```
+    $ ./init.sh backup <<NODE_TYPE>> <<NODE_NAME>>
+    ```
 
-Este será el procedimiento a seguir por los nodos miembros ante actualizaciones de la infraestructura.
+This will be the procedure to be followed by the member nodes before infrastructure updates.
 
-### Operación del nodo ###
+### Node Operation ###
 
  * Faced with errors in the node, we can choose to perform a clean restart of the node, for this we must execute the following commands:
 ```
@@ -170,23 +182,15 @@ $ systemctl restart constellation
 $ systemctl restart geth
 ```
 
- * Todos los nodos incluyen un monitor que permiten al equipo técnico de Alastria realizar labores de mantenimiento y gestión. La ejecución
-del monitor es opcional y puede ejecutarse lanzando el script de start con el flag `--monitor`:
+ * Also, we have a restart script to update the node without stopping any process (for example before permissioned-nodes* updates):
 ```
-$ ./start.sh --monitor
-```
- * También, disponemos de un script de restart para actualizar el nodo sin parar ningún proceso (por ejemplo ante actualizaciones del permissioned-nodes*):
-```
-$ ./restart.sh onlyUpdate
-```
-O para reiniciar completamente
-el nodo:
-```
-$ ./restart.sh auto || <<CURRENT_HOST_IP>>
+$ systemctl restart geth
 ```
 
- * El script `./scripts/backup.sh` permite realizar copias de seguridad del estado del nodo. Ejecutando `./scripts/backup.sh keys` se hace una copia de seguridad de las claves
-y el enode de nuestro nodo y con `./scripts/backup.sh full` realizamos una copia de seguridad de todo el estado del nodo y de la blockchain. Todas las copias de seguridad se almacenan en el directorio home como `~/alastria-keysBackup-<date>/` y `~/alastria-backup-<date>/`, respectivamente.
+ * The next statement allows you to back up the node's state. Makes a backup copy of the keys and the enode of our node. All backup copies are stored in the home directory as `~/alastria-keysBackup`.
+
+ansible-playbook -i inventory -e validator=true --private-key=~/.ssh/id_rsa -u vagrant site-everis-alastria-backup.yml 
+
 
  * Existe un script `./scripts/clean.sh` que limpia el nodo actual y exige una resincronización del mismo al iniciarlo de nuevo. Esto solventa posibles errores de sincronización. Su efecto es el mismo que el de ejecutar directamente `./scripts/start.sh clean`
 
@@ -194,10 +198,12 @@ y el enode de nuestro nodo y con `./scripts/backup.sh full` realizamos una copia
 **NOTE**
 If we want to generate the node using an enode and the keys of an existing node we must make a backup of the keys
 of the old node:
+
 ```
-$ ansible-playbook -i inventory --private-key=~/.ssh/id_rsa -u vagrant site-everis-alastria-backup.yml
+$ ansible-playbook -i inventory -e validator=true --private-key=~/.ssh/id_rsa -u vagrant site-everis-alastria-backup.yml 
+
 ```
-This will generate the folder ~/alastria-keysBackup-<date> whose contents should be moved to ~ / alastria-node / data / keys.
+
+This will generate the folder ~/alastria-keysBackup whose contents should be moved to ~/alastria/data/keys.
 The keys of this directory (which has to keep the folder structure of the generated backup) will be the ones used
 in the image of the node that we are going to generate.
-of the old node:
